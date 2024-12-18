@@ -1,24 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter } from 'react-router-dom';
+import { createContext, useEffect, useState } from 'react';
+import AppRoutes from './routes/routes';
+
+export const globalContext = createContext();
 
 function App() {
+
+  const [authData, setAuthData] = useState();
+  const [productsData, setProductsData] = useState();
+  
+  const getAuthData = async () =>{
+    await fetch("http://localhost:5000/auth")
+    .then(res => {return res.json()})
+    .then(data => {
+      setAuthData(data)
+    })
+  }
+
+  const fetchProductsData = async () =>{
+    await fetch("http://localhost:5000/products")
+    .then(res => {return res.json()})
+    .then(data =>{
+      setProductsData(data);
+    })
+  }
+
+  useEffect(() =>{
+    getAuthData();
+    fetchProductsData();
+  },[])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <globalContext.Provider value={{authData, productsData}}>
+        <BrowserRouter>
+          <AppRoutes/>
+        </BrowserRouter>
+      </globalContext.Provider>
   );
 }
 
